@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>blue_ghost // FAQ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="grid-overlay"></div>
+  <main class="frame">
+    <header>
+      <div class="logo-wrap"><img src="logo.png" alt="blue_ghost logo" /></div>
+      <div class="header-text">
+        <h1>blue_ghost</h1>
+        <h2>frequently asked questions</h2>
+      </div>
+    </header>
+    <nav class="navbar">
+      <a href="home.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="protocol.html">Protocol</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="faq.html" class="active">FAQ</a>
+      <a href="threat_model.html">Threat Model</a>
+      <a href="design.html">Design</a>
+      <a href="download.html">Download</a>
+      <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-x">𝕏</a>
+      <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-yt">▶</a>
+    </nav>
+
+    <section>
+      <h3>FAQ</h3>
+
+      <div class="faq-item open">
+        <button class="faq-trigger" aria-expanded="true">
+          <span class="faq-trigger-bar"></span>
+          <span class="faq-trigger-text">What is blue_ghost?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-body"><div class="faq-inner">
+          <p>blue_ghost is a Bluetooth‑only encrypted messenger designed for offline, hostile, or infrastructure‑denied environments. It uses no servers, no internet, and no cloud. All communication is direct, device‑to‑device over Bluetooth Low Energy.</p>
+        </div></div>
+      </div>
+
+
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">
+          <span class="faq-trigger-bar"></span>
+          <span class="faq-trigger-text">Why Bluetooth instead of Wi‑Fi?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-body"><div class="faq-inner">
+          <p>Bluetooth Low Energy provides short‑range, low‑power, infrastructure‑free communication. Wi‑Fi introduces unnecessary metadata exposure (SSID/BSSID scanning), larger attack surfaces, and potential interaction with malicious access points. BLE eliminates all of those vectors.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">
+          <span class="faq-trigger-bar"></span>
+          <span class="faq-trigger-text">What devices can I talk to?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-body"><div class="faq-inner">
+          <p>Any Android device running blue_ghost within Bluetooth range. No accounts, phone numbers, SIM cards, or internet connection are required on either device.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">
+          <span class="faq-trigger-bar"></span>
+          <span class="faq-trigger-text">How far is the range?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-body"><div class="faq-inner">
+          <p>Typical BLE range is 5–30 meters depending on:</p>
+          <ul>
+            <li>Device hardware and antenna quality</li>
+            <li>Obstacles (walls, vehicles, terrain)</li>
+            <li>RF congestion in the environment</li>
+          </ul>
+          <p>blue_ghost intentionally does not boost TX power to avoid increasing the detection radius.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">
+          <span class="faq-trigger-bar"></span>
+          <span class="faq-trigger-text">What happens if someone captures the Bluetooth packets?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-body"><div class="faq-inner">
+          <p>They get nothing useful. Every payload is encrypted with AES-256-GCM and protected by the Double Ratchet. An RF capture reveals:</p>
+          <ul>
+            <li>No plaintext content</li>
+            <li>No sender or receiver identity</li>
+            <li>No message count or timing patterns</li>
+            <li>No metadata of any kind</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">
+          <span class="faq-trigger-bar"></span>
+          <span class="faq-trigger-text">Does blue_ghost store messages? What happens when I close the app?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-body"><div class="faq-inner">
+          <p>No messages or cryptographic material is ever written to disk. Everything lives in memory only. When a session ends — whether you close the app or trigger it manually — the Seal Ceremony runs and wipes all of it: root key, chain keys, message keys, ratchet state, and message history. A small amount of non-sensitive preference data (peer display names, avatar seeds, UI settings) is stored locally in SharedPreferences and contains no message content or secrets.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">
+          <span class="faq-trigger-bar"></span>
+          <span class="faq-trigger-text">Why does the app need Location permission?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-body"><div class="faq-inner">
+          <p>On Android 12 and above, it doesn't — blue_ghost uses the <code>neverForLocation</code> flag on the <code>BLUETOOTH_SCAN</code> permission, so location is never requested on modern devices.</p>
+          <p>On Android 11 and below, Google's OS requires location permission as a prerequisite for any BLE scanning. blue_ghost requests it on those versions to function, but GPS is never accessed and no location data is collected or stored.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">
+          <span class="faq-trigger-bar"></span>
+          <span class="faq-trigger-text">How does the key exchange work?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-body"><div class="faq-inner">
+          <p>When two devices connect, they perform an ephemeral ECDH (P-256) key exchange — both sides generate fresh temporary keypairs, exchange public keys over BLE, and compute a shared secret locally. The shared secret is never transmitted. HKDF-SHA256 then derives the initial ratchet keys from the shared secret. Since the keypairs are generated fresh per session, no prior session material is ever reused.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">
+          <span class="faq-trigger-bar"></span>
+          <span class="faq-trigger-text">What is the Safety Number?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-body"><div class="faq-inner">
+          <p>The Safety Number is a human-readable fingerprint derived from both users' long-term identity public keys. If both users read their Safety Numbers aloud and they match, the session is cryptographically authentic — no MITM is present. This is the same verification approach used by Signal.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">
+          <span class="faq-trigger-bar"></span>
+          <span class="faq-trigger-text">Can I export or back up my messages?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-body"><div class="faq-inner">
+          <p>No. This is intentional — persistent storage of message history creates attack surfaces. The design assumes that conversations should not outlive the session.</p>
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger" aria-expanded="false">
+          <span class="faq-trigger-bar"></span>
+          <span class="faq-trigger-text">Who is blue_ghost for?</span>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-body"><div class="faq-inner">
+          <p><strong>Anyone who needs secure, offline, device‑to‑device communication — and anyone who simply prefers privacy done right.</strong></p>
+          <p>🛰️ <strong>Field Teams &amp; On‑Site Operators</strong></p>
+          <ul>
+            <li>Disaster‑response volunteers coordinating in collapsed infrastructure</li>
+            <li>Environmental researchers in forests, deserts, or remote terrain</li>
+            <li>Film crews on closed sets where phones must stay offline</li>
+            <li>Warehouse and logistics teams who need quiet, local coordination</li>
+          </ul>
+          <p>🕵️ <strong>Security‑Minded Professionals</strong></p>
+          <ul>
+            <li>Security researchers testing devices in Faraday environments</li>
+            <li>Pen‑test teams coordinating inside restricted facilities</li>
+            <li>Red‑teamers who need a comms layer that cannot leak</li>
+          </ul>
+          <p>📡 <strong>Network‑Denied Environments</strong></p>
+          <ul>
+            <li>Underground facilities, remote villages, airplane cabins</li>
+            <li>Mountain passes, national parks, cruise ships</li>
+          </ul>
+          <p>🎭 <strong>Creators, Artists &amp; Event Organizers</strong></p>
+          <ul>
+            <li>Stage crews during live performances</li>
+            <li>DJs and lighting techs at crowded venues</li>
+            <li>Photographers directing assistants across a set</li>
+          </ul>
+          <p>🏙️ <strong>Everyday Urban Users</strong></p>
+          <ul>
+            <li>Meeting someone at a bar without giving your number</li>
+            <li>Messaging a neighbor in your building</li>
+            <li>Coordinating with friends at a crowded festival</li>
+          </ul>
+          <p>🧩 <strong>People Who Want Conversations That Don't Live Forever</strong></p>
+          <ul>
+            <li>Temporary coordination and one‑time exchanges</li>
+            <li>Sensitive personal discussions</li>
+            <li>Conversations that shouldn't be stored, synced, or backed up</li>
+          </ul>
+        </div></div>
+      </div>
+
+    </section>
+
+    <footer>© <span id="year"></span> blue_ghost — Offline. Encrypted. Serverless. <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-x">𝕏 blue_ghost_dev</a> <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-yt">▶ blue_ghost_dev</a></footer>
+  </main>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  <script src="effects.js"></script>
+</body>
+</html>

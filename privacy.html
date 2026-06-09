@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>blue_ghost // privacy policy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="grid-overlay"></div>
+  <main class="frame">
+    <header>
+      <div class="logo-wrap"><img src="logo.png" alt="blue_ghost logo" /></div>
+      <div class="header-text">
+        <h1>blue_ghost</h1>
+        <h2>privacy policy</h2>
+      </div>
+    </header>
+    <nav class="navbar">
+      <a href="home.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="protocol.html">Protocol</a>
+      <a href="privacy.html" class="active">Privacy</a>
+      <a href="faq.html">FAQ</a>
+      <a href="threat_model.html">Threat Model</a>
+      <a href="design.html">Design</a>
+      <a href="download.html">Download</a>
+      <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-x">𝕏</a>
+      <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-yt">▶</a>
+    </nav>
+
+    <section>
+      <h3>Zero‑Data Philosophy</h3>
+      <p>
+        blue_ghost collects, stores, transmits, and retains <strong>no personal data whatsoever</strong>.
+        This is not a policy promise — it is a technical constraint enforced by the Android permission
+        sandbox. The app has no <code>INTERNET</code> permission, cannot open network sockets, and
+        transmits only encrypted message payloads and handshake data over Bluetooth. No plaintext,
+        identifiers, or auxiliary metadata ever leave the device.
+      </p>
+    </section>
+
+    <section>
+      <h3>What We Collect</h3>
+      <p><strong>Nothing.</strong> blue_ghost does not collect:</p>
+      <ul>
+        <li>Names, identifiers, or usernames</li>
+        <li>Phone numbers or email addresses</li>
+        <li>Device identifiers or hardware fingerprints</li>
+        <li>Location data (GPS is never accessed)</li>
+        <li>Contacts or address book data</li>
+        <li>Analytics or usage statistics</li>
+        <li>Crash reports or diagnostics</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>What Is Stored</h3>
+      <p>
+        Session cryptographic material — root key, chain keys, message keys, ratchet state, and
+        message history — is held in memory only and destroyed during the Seal Ceremony when a
+        session ends.
+      </p>
+      <p>
+        A small amount of non-sensitive preference data is stored locally in SharedPreferences:
+        peer display names, avatar seeds, peer descriptions, and UI settings (theme, notification
+        level). This data never leaves the device and contains no message content or cryptographic
+        secrets.
+      </p>
+    </section>
+
+
+    <section>
+      <h3>Permissions</h3>
+      <p>blue_ghost requests only the minimum permissions required:</p>
+      <div class="perm-row">
+        <span class="perm-name">BLUETOOTH_SCAN</span>
+        <span class="perm-desc">Device discovery. Uses <code>neverForLocation</code> flag on Android 12+ — no location permission needed.</span>
+      </div>
+      <div class="perm-row">
+        <span class="perm-name">BLUETOOTH_ADVERTISE</span>
+        <span class="perm-desc">Makes the device visible to other blue_ghost users nearby.</span>
+      </div>
+      <div class="perm-row">
+        <span class="perm-name">BLUETOOTH_CONNECT</span>
+        <span class="perm-desc">Establishes encrypted GATT connections for messaging.</span>
+      </div>
+      <div class="perm-row">
+        <span class="perm-name">ACCESS_FINE_LOCATION</span>
+        <span class="perm-desc">Required by Android 11 and below for BLE scanning only. GPS is never accessed.</span>
+      </div>
+      <div class="perm-row">
+        <span class="perm-name">FOREGROUND_SERVICE</span>
+        <span class="perm-desc">Keeps the active chat session alive when the app is minimised.</span>
+      </div>
+      <div class="perm-row">
+        <span class="perm-name">POST_NOTIFICATIONS</span>
+        <span class="perm-desc">Delivers silent or stealth-mode new-message alerts. Message content is never shown.</span>
+      </div>
+      <p style="margin-top:16px">The app does <strong>not</strong> request: <code>INTERNET</code>, storage read/write, camera, microphone, contacts, or background network access.</p>
+    </section>
+
+    <section>
+      <h3>Third‑Party Services</h3>
+      <p>blue_ghost uses <strong>no third‑party services</strong> of any kind — no analytics SDKs,
+      no crash reporting, no advertising frameworks, no cloud messaging, no remote configuration,
+      no telemetry.</p>
+    </section>
+
+
+    <footer>© <span id="year"></span> blue_ghost — Offline. Encrypted. Serverless. <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-x">𝕏 blue_ghost_dev</a> <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-yt">▶ blue_ghost_dev</a></footer>
+  </main>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  <script src="effects.js"></script>
+</body>
+</html>

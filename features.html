@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>blue_ghost // features</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .tier-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.60rem;
+      font-weight: 600;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid rgba(0,229,255,0.10);
+      background: rgba(0,229,255,0.04);
+    }
+    .app-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 6px;
+    }
+    @media (max-width: 680px) { .app-split { grid-template-columns: 1fr; } }
+    .app-card {
+      padding: 22px 22px 18px;
+      border-radius: var(--radius-card);
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      cursor: pointer;
+      transition: border-color 0.22s, box-shadow 0.22s, transform 0.18s;
+      user-select: none;
+    }
+    .app-card:hover {
+      border-color: rgba(0,229,255,0.35);
+      box-shadow: 0 0 28px rgba(0,229,255,0.10);
+      transform: translateY(-2px);
+    }
+    .app-card.active-card {
+      border-color: rgba(0,229,255,0.55);
+      box-shadow: 0 0 36px rgba(0,229,255,0.18), inset 0 0 0 1px rgba(0,229,255,0.12);
+    }
+    .app-card.plus {
+      border-color: rgba(0,229,255,0.22);
+      background: linear-gradient(145deg, rgba(0,20,36,0.95) 0%, rgba(2,6,14,0.99) 100%);
+      box-shadow: 0 0 32px rgba(0,229,255,0.06);
+    }
+    .app-card.plus:hover {
+      border-color: rgba(0,229,255,0.50);
+      box-shadow: 0 0 40px rgba(0,229,255,0.18);
+    }
+    .app-card.plus.active-card {
+      border-color: rgba(0,229,255,0.70);
+      box-shadow: 0 0 48px rgba(0,229,255,0.22), inset 0 0 0 1px rgba(0,229,255,0.18);
+    }
+    .app-card-title {
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--accent-strong);
+      text-shadow: 0 0 16px rgba(0,229,255,0.40);
+      margin-bottom: 5px;
+    }
+    .app-card.plus .app-card-title {
+      background: linear-gradient(90deg, #00e5ff 0%, #7af6ff 60%, #fff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .app-card-sub {
+      font-family: var(--font-mono);
+      font-size: 0.67rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .app-card-desc { font-size: 0.85rem; line-height: 1.65; color: var(--text-muted); }
+    .feature-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 13px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: rgba(0,8,18,0.50);
+      margin-bottom: 8px;
+      transition: border-color 0.22s, background 0.22s;
+    }
+    .feature-row:last-child { margin-bottom: 0; }
+    .feature-row:hover { border-color: rgba(0,229,255,0.18); background: rgba(0,14,26,0.70); }
+    .feature-row-icon {
+      font-size: 1.15rem;
+      flex-shrink: 0;
+      filter: drop-shadow(0 0 5px rgba(0,229,255,0.40));
+      margin-top: 1px;
+    }
+    .feature-row-body { flex: 1; min-width: 0; }
+    .feature-row-title {
+      font-family: var(--font-mono);
+      font-size: 0.70rem;
+      font-weight: 600;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .feature-row-desc { font-size: 0.84rem; line-height: 1.60; color: var(--text-muted); margin: 0; }
+    .badge-plus {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid rgba(0,229,255,0.40);
+      color: var(--accent-strong);
+      background: rgba(0,229,255,0.08);
+      margin-left: 8px;
+      vertical-align: middle;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      margin-top: 8px;
+    }
+    .compare-table th {
+      text-align: left;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(0,229,255,0.12);
+      padding: 0 16px 10px 0;
+    }
+    .compare-table th:not(:first-child) { text-align: center; }
+    .compare-table td {
+      padding: 9px 12px 9px 0;
+      vertical-align: middle;
+      border-bottom: 1px solid rgba(0,229,255,0.05);
+      color: var(--text-main);
+      line-height: 1.45;
+    }
+    .compare-table td:not(:first-child) { text-align: center; font-size: 0.95rem; }
+    .compare-table td:first-child { color: var(--text-muted); width: 56%; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table tr:hover td { background: rgba(0,229,255,0.025); }
+    .plus-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 8px 0 20px;
+    }
+    .plus-header-text {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      background: linear-gradient(90deg, #00e5ff 0%, #7af6ff 60%, #fff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .plus-header-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, rgba(0,229,255,0.30), transparent);
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-overlay"></div>
+  <main class="frame">
+
+    <header>
+      <div class="logo-wrap"><img src="logo.png" alt="blue_ghost logo" /></div>
+      <div class="header-text">
+        <h1>blue_ghost</h1>
+        <h2>features</h2>
+      </div>
+    </header>
+
+    <nav class="navbar">
+      <a href="home.html">Home</a>
+      <a href="features.html" class="active">Features</a>
+      <a href="protocol.html">Protocol</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="faq.html">FAQ</a>
+      <a href="threat_model.html">Threat Model</a>
+      <a href="design.html">Design</a>
+      <a href="download.html">Download</a>
+      <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-x">𝕏</a>
+      <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-yt">▶</a>
+    </nav>
+
+    <!-- App Overview -->
+    <section>
+      <h3>Two Versions. One Protocol.</h3>
+      <div class="app-split">
+        <div class="app-card active-card" id="card-free">
+          <div class="app-card-title">blue_ghost</div>
+          <div class="app-card-sub">Free — always</div>
+          <p class="app-card-desc">The full encrypted messenger. Every security feature, every core communication tool, and the complete cryptographic stack — no cost, no ads, no accounts, no limits on what matters.</p>
+        </div>
+        <div class="app-card plus" id="card-plus">
+          <div class="app-card-title">blue_ghost+</div>
+          <div class="app-card-sub">Paid — unlocks everything</div>
+          <p class="app-card-desc">Everything in blue_ghost, plus group sessions, live polls, a custom theme editor, Ghost Notes encrypted notepad, and broadcast descriptions.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="free-features" class="free-section">
+      <div class="tier-label">Core</div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">📡</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Bluetooth-Only Messaging</div>
+          <p class="feature-row-desc">All communication runs exclusively over Bluetooth Low Energy — direct, device-to-device, with zero internet or Wi-Fi involvement. The app holds no <code>INTERNET</code> permission and cannot open a network socket under any condition.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🔒</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">End-to-End Encryption — Double Ratchet + AES-256-GCM</div>
+          <p class="feature-row-desc">Every message is encrypted with a unique key derived from a Double Ratchet state machine. An ephemeral ECDH (P-256) handshake seeds the ratchet via HKDF-SHA256. Message keys are deleted immediately after use — no two messages ever share a key.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🔑</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Hardware-Backed Identity Keys</div>
+          <p class="feature-row-desc">Your long-term identity is a P-256 keypair generated inside Android's Trusted Execution Environment via the Keystore API. The private key is non-exportable and never touches the JVM heap — it cannot be extracted even if the OS is compromised.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">⏩</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Forward Secrecy &amp; Break-In Recovery</div>
+          <p class="feature-row-desc">The symmetric ratchet advances on every message, deleting each key after use. The DH ratchet advances whenever you reply after receiving, re-deriving the root key from a fresh ECDH output. Past messages stay safe even if current state is compromised, and future messages recover automatically after a breach.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🛡️</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Replay &amp; Injection Protection</div>
+          <p class="feature-row-desc">Monotonically increasing sequence numbers are authenticated into every GCM tag via AAD. A 1,024-message sliding window bitmap rejects any duplicate or out-of-window sequence. Tampered, replayed, reordered, or injected packets fail authentication before decryption is attempted.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">👻</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">No Accounts — No Identity</div>
+          <p class="feature-row-desc">No phone numbers, no usernames, no email, no registration of any kind. A display name is a local label only — it is never used to persistently identify you or cross-reference sessions.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">📵</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">FLAG_SECURE — OS-Level Screen Protection</div>
+          <p class="feature-row-desc">The <code>FLAG_SECURE</code> window flag is always active. Android's OS blocks all screenshots, screen recordings, and recent-app thumbnails at the system level. No third-party detection logic is needed or used.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="free-section">
+      <div class="tier-label">Security</div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🔢</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Session Verification — Safety Number</div>
+          <p class="feature-row-desc">A SHA-256 fingerprint derived from both peers' identity public keys, displayed as 12 groups of 5 digits. If both sides read matching numbers aloud, the session is cryptographically authentic — no man-in-the-middle is present. Uses the same approach as Signal.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🔐</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">PIN-Protected Sessions</div>
+          <p class="feature-row-desc">Set an optional PIN that must match during the handshake before a session is established. Peers without the correct PIN are rejected at the protocol layer before any encryption state is created.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🗑️</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Secure Message Erase</div>
+          <p class="feature-row-desc">Any message can be erased from both devices simultaneously. Erase requests are cryptographically signed with your identity key — the peer verifies the signature before honouring the deletion. Forged erase requests are rejected.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">⚗️</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Seal Ceremony — Secure Session Teardown</div>
+          <p class="feature-row-desc">When a session ends, a mutual ritual destroys all cryptographic material: root key, send/receive chain keys, every cached skipped message key, all ratchet state, and the full message history. Nothing survives a session end.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">⏱️</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Inactivity Timeout</div>
+          <p class="feature-row-desc">Configurable auto-seal trigger. A slider lets you set anywhere from 1 to 60 minutes of inactivity before the session is automatically torn down, or disable it entirely. On timeout, the full Seal Ceremony runs — keys and history are wiped.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🌱</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Hardware Sensor Entropy</div>
+          <p class="feature-row-desc">Accelerometer, gyroscope, and other hardware sensors contribute additional entropy during key generation. Sensors are active only during the scan and handshake windows — never during idle or active chat — to keep battery usage minimal.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">⚠️</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Root Detection</div>
+          <p class="feature-row-desc">Runs asynchronously on launch and warns if the host device appears to be rooted. Detection uses file-path checks only and never blocks the UI or adds latency to the startup path.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🔔</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Notification Security Levels</div>
+          <p class="feature-row-desc">Three levels selectable from a picker dialog. <strong>Secret</strong>: hidden entirely on the lock screen with a lock icon only. <strong>Private</strong>: visible when unlocked, redacted on the lock screen. <strong>None</strong>: no notifications at all. Message content is never shown in any notification.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="free-section">
+      <div class="tier-label">Communication</div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">✍️</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Typing Indicators</div>
+          <p class="feature-row-desc">Named typing events are broadcast as control signals. In group sessions the indicator shows each specific member's name, not just a generic "someone is typing" message.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🕶️</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Message Privacy Mode</div>
+          <p class="feature-row-desc">Obscures all message content on screen until you hold down on a message. Toggled from the chat menu — useful in environments where someone might look over your shoulder.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">📝</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Encrypted Draft Saving</div>
+          <p class="feature-row-desc">Unsent message drafts are saved per-peer using AES-256-GCM encryption backed by Android Keystore. Drafts persist between app launches but are never stored in plaintext and never leave the device.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="free-section">
+      <div class="tier-label">Expressive</div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🎲</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Mini-Games — Dice, Coin Flip, Rock Paper Scissors</div>
+          <p class="feature-row-desc">Three in-chat games with a cryptographic commit-reveal anti-cheat scheme. The initiator commits a SHA-256 hash of their value and a random nonce before the peer accepts — neither side can change their result after seeing the other's move. All game events (sent, accepted, declined, cancelled, result) appear as system messages in the chat log. For coin flip, the initiator picks heads or tails before sending the challenge.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🌈</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Color Pulse</div>
+          <p class="feature-row-desc">Send a full-screen color wash to your peer — 7 rainbow colors, each fading in and out over roughly one second. Group-aware: in a group session the pulse broadcasts to all connected peers simultaneously.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="free-section">
+      <div class="tier-label">UX &amp; Polish</div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🔬</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Ratchet Console</div>
+          <p class="feature-row-desc">A live diagnostic overlay showing real-time Double Ratchet state: current sequence numbers, key fingerprints, and DH ratchet step status — visible during an active session for anyone who wants to verify the cryptographic machinery directly.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🔑</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Key Derivation Overlay</div>
+          <p class="feature-row-desc">A per-message animation showing the ratchet derivation chain: rk → ck → mk → 🔒. Plays on every message send, making the cryptographic flow visible rather than invisible.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🌑</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Grayscale Mode</div>
+          <p class="feature-row-desc">Strips all color from the UI via a <code>ColorMatrix</code> filter. Zero per-frame cost. Toggled from the chat menu.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🔭</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">GUI Scale</div>
+          <p class="feature-row-desc">A slider to adjust the interface scale, accommodating different device sizes and accessibility needs without requiring system-wide font changes.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">⏰</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Hide Timestamps</div>
+          <p class="feature-row-desc">Toggle timestamp visibility on all message bubbles. When hidden, the chat log contains no time metadata whatsoever.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🌠</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Constellation Avatar System</div>
+          <p class="feature-row-desc">Each peer is represented by a unique procedurally generated constellation derived from a seed. Purely local and cosmetic — never used as identity data, never transmitted as anything other than a seed number.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🚀</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Boot Screen &amp; Foreground Service</div>
+          <p class="feature-row-desc">An animated startup sequence runs while the BLE stack initialises. A silent foreground service with <code>VISIBILITY_SECRET</code> keeps active sessions alive when the app is backgrounded, and auto-terminates cleanly when the task is removed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="plus-features" style="display:none">
+      <div class="plus-header">
+        <div class="plus-header-text">blue_ghost+</div>
+        <div class="plus-header-line"></div>
+      </div>
+      <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:20px;">Everything in blue_ghost, fully unlocked, plus the five features below.</p>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">👥</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Group Sessions <span class="badge-plus">+ exclusive</span></div>
+          <p class="feature-row-desc">Hub-and-spoke multi-peer encrypted chat. The session host maintains an independent Double Ratchet state per connected peer — every message is encrypted separately for each participant. Group typing indicators show each member's name individually. Color Pulse and Polls are both group-aware.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">📊</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Live Polls <span class="badge-plus">+ exclusive</span></div>
+          <p class="feature-row-desc">Create and broadcast polls to the group in real time. The poll creator votes on their own poll. Votes are anonymous bare-index signals — no peer identity is attached to a vote. The creator can close or cancel a poll at any time, with final tallies distributed to all group members.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🎨</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Custom Theme Editor <span class="badge-plus">+ exclusive</span></div>
+          <p class="feature-row-desc">A full color customisation screen. Every accent color, background tone, surface color, and text shade in the interface is configurable via a built-in color picker. Changes apply globally in real time and persist across sessions.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">📢</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Broadcast Description <span class="badge-plus">+ exclusive</span></div>
+          <p class="feature-row-desc">Advertise a short text description in your BLE advertisement payload alongside your avatar seed. Nearby peers see your description before connecting — useful for open sessions, event coordination, or giving context without requiring a handshake first.</p>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-row-icon">🗒️</div>
+        <div class="feature-row-body">
+          <div class="feature-row-title">Ghost Notes — Encrypted Notepad <span class="badge-plus">+ exclusive</span></div>
+          <p class="feature-row-desc">A PIN-gated, AES-256-GCM encrypted notepad stored entirely on-device via Android Keystore. Create, edit, and delete notes with title and body support. The PIN is hashed — the plaintext is never stored. Notes are never synced or transmitted, survive app restarts in fully encrypted form, and include a discard-changes guard and per-note deletion with confirmation. PIN can be changed or removed at any time.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="free-section">
+      <h3>Feature Comparison</h3>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>blue_ghost</th>
+            <th>blue_ghost+</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>BLE-only encrypted 1:1 chat</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Double Ratchet + AES-256-GCM</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Hardware-backed P-256 identity keys (TEE)</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Forward secrecy &amp; break-in recovery</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Replay &amp; injection protection</td><td>✓</td><td>✓</td></tr>
+          <tr><td>FLAG_SECURE screen protection</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Safety Number session verification</td><td>✓</td><td>✓</td></tr>
+          <tr><td>PIN-protected sessions</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Secure message erase (signed)</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Seal Ceremony teardown</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Inactivity timeout (1–60 min)</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Hardware sensor entropy</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Root detection</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Notification security levels (3)</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Typing indicators (named)</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Message privacy mode</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Encrypted draft saving (Keystore)</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Mini-games (dice, coin flip, RPS)</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Color pulse (7 colors)</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Ratchet console</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Key derivation overlay</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Grayscale mode</td><td>✓</td><td>✓</td></tr>
+          <tr><td>GUI scale</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Constellation avatar system</td><td>✓</td><td>✓</td></tr>
+          <tr>
+            <td colspan="3" style="padding-top:14px; color:var(--accent); font-family:var(--font-mono); font-size:0.62rem; letter-spacing:0.16em; text-transform:uppercase;">
+              blue_ghost+ exclusive
+            </td>
+          </tr>
+          <tr><td>Group sessions (hub-and-spoke)</td><td>—</td><td>✓</td></tr>
+          <tr><td>Live polls (group)</td><td>—</td><td>✓</td></tr>
+          <tr><td>Custom theme editor</td><td>—</td><td>✓</td></tr>
+          <tr><td>Broadcast description (BLE)</td><td>—</td><td>✓</td></tr>
+          <tr><td>Ghost Notes (encrypted notepad)</td><td>—</td><td>✓</td></tr>
+
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h3>Get blue_ghost</h3>
+      <p>Both versions are available on Google Play. blue_ghost is free, always. blue_ghost+ is a one-time purchase — no subscriptions.</p>
+      <div class="btn-row">
+        <a class="btn-primary" href="https://play.google.com/store/apps/details?id=com.blue_ghost.app" target="_blank" rel="noopener noreferrer">
+          <span>⬇</span> Download blue_ghost
+        </a>
+        <a class="btn-plus" href="https://play.google.com/store/apps/details?id=com.blue_ghost_plus.app" target="_blank" rel="noopener noreferrer">
+          <span>👻</span> Buy blue_ghost+
+        </a>
+      </div>
+    </section>
+
+    <footer>© <span id="year"></span> blue_ghost — Offline. Encrypted. Serverless. <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-x">𝕏 blue_ghost_dev</a> <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-yt">▶ blue_ghost_dev</a></footer>
+  </main>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  <script>
+    (function () {
+      var cardFree   = document.getElementById('card-free');
+      var cardPlus   = document.getElementById('card-plus');
+      var freeSects  = document.querySelectorAll('.free-section');
+      var plusSect   = document.getElementById('plus-features');
+      function showFree() {
+        cardFree.classList.add('active-card');
+        cardPlus.classList.remove('active-card');
+        freeSects.forEach(function(s){ s.style.display = ''; });
+        plusSect.style.display = 'none';
+      }
+
+      function showPlus() {
+        cardPlus.classList.add('active-card');
+        cardFree.classList.remove('active-card');
+        freeSects.forEach(function(s){ s.style.display = 'none'; });
+        plusSect.style.display = '';
+      }
+
+      cardFree.addEventListener('click', showFree);
+      cardPlus.addEventListener('click', showPlus);
+    })();
+  </script>
+  <script src="effects.js"></script>
+</body>
+</html>

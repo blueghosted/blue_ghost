@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>blue_ghost // system design</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="grid-overlay"></div>
+  <main class="frame">
+    <header>
+      <div class="logo-wrap"><img src="logo.png" alt="blue_ghost logo" /></div>
+      <div class="header-text">
+        <h1>blue_ghost</h1>
+        <h2>system design</h2>
+      </div>
+    </header>
+    <nav class="navbar">
+      <a href="home.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="protocol.html">Protocol</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="faq.html">FAQ</a>
+      <a href="threat_model.html">Threat Model</a>
+      <a href="design.html" class="active">Design</a>
+      <a href="download.html">Download</a>
+      <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-x">𝕏</a>
+      <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-yt">▶</a>
+    </nav>
+
+    <section>
+      <h3>Architecture Overview</h3>
+      <p>
+        blue_ghost is built as a layered, offline‑first secure communication system.
+        Each layer is isolated, minimal, and designed to eliminate entire classes of attack.
+      </p>
+      <pre>
+┌─────────────────────────────────────────────────────┐
+│                   Application UI                    │
+│              (Jetpack Compose, MVVM)                │
+├──────────────────────┬──────────────────────────────┤
+│   Session Manager    │   Secure Input / Display     │
+│   (BleManager.kt)    │   (Password-mode keyboard,   │
+│                      │    FLAG_SECURE screenshots)  │
+├──────────────────────┴──────────────────────────────┤
+│             Cryptographic Protocol Layer            │
+│   Ephemeral ECDH · Double Ratchet · AES-256-GCM     │
+│   HKDF-SHA256 · Replay Window · Safety Number       │
+├─────────────────────────────────────────────────────┤
+│              Bluetooth Low Energy Transport         │
+│          (GATT Server + Client, BLE Advertiser)     │
+├─────────────────────────────────────────────────────┤
+│            Android Keystore (TEE-backed)            │
+│         P-256 identity key — never extracted        │
+└─────────────────────────────────────────────────────┘</pre>
+    </section>
+
+    <section>
+      <h3>Component Breakdown</h3>
+      <ul>
+        <li><strong>Identity Manager</strong> — hardware-backed P-256 keys in Android Keystore TEE</li>
+        <li><strong>Handshake Engine</strong> — ephemeral ECDH (P-256) with HKDF-SHA256 key derivation</li>
+        <li><strong>Ratchet Engine</strong> — Double Ratchet state machine (symmetric + DH ratchet)</li>
+        <li><strong>Message Encryptor</strong> — AES-256-GCM with authenticated sequence numbers</li>
+        <li><strong>BLE Transport</strong> — GATT server/client, BLE advertiser/scanner</li>
+        <li><strong>Session Manager</strong> — lifecycle, reconnection, and Seal Ceremony teardown</li>
+        <li><strong>Privacy Layer</strong> — password-mode input, FLAG_SECURE screen protection, notification redaction</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>ECDH Handshake Flow</h3>
+      <pre>
+Device A (initiator)                    Device B (responder)
+────────────────────                    ────────────────────
+Generate EKa (ephemeral)
+Send EKa.public ──────────────────────▶ Generate EKb (ephemeral)
+                                        shared = ECDH(EKb.priv, EKa.pub)
+                                        Derive via HKDF-SHA256 →
+                                          rootKey       (32 bytes)
+                                          recvChainKey  (32 bytes)
+                                          sendChainKey  (32 bytes)
+                ◀────────────────────── Send EKb.public
+shared = ECDH(EKa.priv, EKb.pub)
+Derive via HKDF-SHA256 →
+  rootKey       (32 bytes)
+  sendChainKey  (32 bytes)
+  recvChainKey  (32 bytes)
+
+Both sides now hold identical ratchet initialisation state.
+No private material was ever transmitted.</pre>
+    </section>
+
+    <section>
+      <h3>Double Ratchet Flow</h3>
+      <pre>
+┌──────────────────┐
+│   Root Key (RK)  │  ← initialised from HKDF handshake output
+└────────┬─────────┘
+         │  (advances on each DH ratchet step)
+         ▼
+┌──────────────────┐
+│   DH Ratchet     │  ← new ephemeral keypair generated per turn
+│ (break-in recov) │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  Chain Key (CK)  │  ← HMAC-SHA256 ratchet, one step per message
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ Message Key (MK) │  ← used once for AES-256-GCM, then wiped
+└──────────────────┘</pre>
+      <p>
+        Each message uses a unique MK that is deleted immediately after use.
+        The DH ratchet step re-derives RK and CK from a new ECDH output,
+        ensuring that a future key compromise cannot retroactively expose past messages.
+      </p>
+    </section>
+
+    <section>
+      <h3>BLE Transport Model</h3>
+      <p>
+        blue_ghost uses BLE GATT characteristics as an encrypted bidirectional pipe.
+        The advertiser broadcasts a minimal service UUID with avatar seed and busy-status bytes.
+        Descriptions and names are fetched via GATT read on first contact.
+      </p>
+      <pre>
+┌──────────────────────────────────┐
+│   BLE Advertisement              │
+│   Service UUID + avatar seed     │
+│   + busy flag (5 bytes total)    │
+└──────────────┬───────────────────┘
+               │ connect
+               ▼
+┌─────────────────────────────────────────────┐
+│   GATT Service: blue_ghost       			      │
+├─────────────────────────────────────────────┤
+│  NAME_CHAR    (read)                        │
+│  DESC_CHAR    (read)                        │
+│  SHAKE_CHAR   (write) ← handshake + control │
+│  MESSAGE_CHAR (write) ← encrypted payloads  │
+└─────────────────────────────────────────────┘</pre>
+      <p>
+        All message payloads are uniform-length encrypted blobs. No plaintext,
+        metadata, or identifiers are ever transmitted in the clear.
+      </p>
+    </section>
+
+    <section>
+      <h3>Session Lifecycle</h3>
+      <pre>
+[ Set name + description ]
+         │
+         ▼
+[ Start scanning + advertising ]
+         │
+         ▼
+[ Peer discovered → tap to view profile ]
+         │  GATT probe reads NAME + DESC
+         ▼
+[ Connect dialog → send SHAKE ]
+         │  SHAKE payload: ephemeral pub + avatar + name + desc
+         ▼
+[ Peer accepts → ACCEPT payload returned ]
+         │  ACCEPT payload: ephemeral pub + avatar + name + desc
+         ▼
+[ HKDF derives root + chain keys ]
+         │
+         ▼
+[ Double Ratchet active — encrypted messaging ]
+         │
+         ▼
+[ Session end → Seal Ceremony ]
+         │
+         ▼
+[ All keys + history destroyed ]</pre>
+    </section>
+
+
+    <footer>© <span id="year"></span> blue_ghost — Offline. Encrypted. Serverless. <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-x">𝕏 blue_ghost_dev</a> <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-yt">▶ blue_ghost_dev</a></footer>
+  </main>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  <script src="effects.js"></script>
+</body>
+</html>

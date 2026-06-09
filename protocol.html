@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>blue_ghost // protocol</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="grid-overlay"></div>
+  <main class="frame">
+    <header>
+      <div class="logo-wrap"><img src="logo.png" alt="blue_ghost logo" /></div>
+      <div class="header-text">
+        <h1>blue_ghost</h1>
+        <h2>protocol specification</h2>
+      </div>
+    </header>
+    <nav class="navbar">
+      <a href="home.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="protocol.html" class="active">Protocol</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="faq.html">FAQ</a>
+      <a href="threat_model.html">Threat Model</a>
+      <a href="design.html">Design</a>
+      <a href="download.html">Download</a>
+      <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-x">𝕏</a>
+      <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-yt">▶</a>
+    </nav>
+
+    <section>
+      <h3>Overview</h3>
+      <p>A complete technical specification of the cryptographic layers, wire protocol, and session lifecycle. For a plain-English summary see <a href="home.html" style="color:var(--accent)">Home</a>; for privacy guarantees see <a href="privacy.html" style="color:var(--accent)">Privacy</a>.</p>
+    </section>
+
+    <section>
+      <h3>Identity Layer — Hardware‑Backed Keys</h3>
+      <p>
+        Each device's long-term identity is a P-256 elliptic curve keypair generated inside
+        Android Keystore and bound to the device's Trusted Execution Environment. The private key
+        is non-exportable — it never touches the JVM heap, and cannot be extracted even if the OS
+        is compromised.
+      </p>
+      <ul>
+        <li><strong>Algorithm:</strong> P-256 (secp256r1) ECDSA</li>
+        <li><strong>Storage:</strong> Android Keystore TEE — private key never leaves hardware</li>
+        <li><strong>Use:</strong> Identity verification and Safety Number derivation</li>
+        <li><strong>Fingerprint:</strong> Exposed as a Safety Number for out-of-band peer verification</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Handshake Layer — Ephemeral ECDH</h3>
+      <p>
+        When two devices connect, they perform an ephemeral ECDH (P-256) key exchange to establish
+        a shared secret without transmitting any private material. Both devices generate fresh
+        ephemeral keypairs for each session — no long-term key material is reused across sessions.
+      </p>
+      <pre>
+Device A (initiator)                       Device B (responder)
+──────────────────                         ────────────────────
+Generate ephemeral keypair EKa             Generate ephemeral keypair EKb
+Send EKa.public          ──────────────▶  Receive EKa.public
+                                           Compute shared = ECDH(EKb.private, EKa.public)
+                         ◀──────────────  Send EKb.public
+Compute shared = ECDH(EKa.private, EKb.public)
+
+Both sides derive:
+  [rootKey ‖ sendChainKey ‖ recvChainKey] = HKDF-SHA256(shared, 96 bytes)</pre>
+      <p>
+        HKDF-SHA256 expands the raw shared secret into three 32-byte keys used to initialise the
+        Double Ratchet. No static keys participate in the handshake, so there is no pre-key
+        infrastructure to compromise.
+      </p>
+    </section>
+
+    <section>
+      <h3>Messaging Layer — Double Ratchet</h3>
+      <p>
+        Once the handshake completes, every message is encrypted with a unique key derived from
+        two interleaved ratchets:
+      </p>
+      <ul>
+        <li><strong>Symmetric-key ratchet (KDF chain)</strong> — advances on every message, producing a fresh message key from HMAC-SHA256. Old keys are wiped immediately after use.</li>
+        <li><strong>DH ratchet</strong> — advances whenever either party sends after receiving. Each step generates a new ephemeral keypair and re-derives the root key from a new ECDH output, providing break-in recovery.</li>
+      </ul>
+      <p>This provides:</p>
+      <ul>
+        <li><strong>Forward secrecy</strong> — past message keys are deleted; compromising the current state reveals nothing about prior messages</li>
+        <li><strong>Break-in recovery</strong> — after a key compromise, future messages become secure again as soon as the DH ratchet advances</li>
+        <li><strong>Per-message key isolation</strong> — no two messages share a key</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Encryption Layer — AES-256-GCM</h3>
+      <p>Each message key from the ratchet is used once for AES-256-GCM encryption:</p>
+      <ul>
+        <li><strong>Key size:</strong> 256 bits, derived fresh per message</li>
+        <li><strong>IV:</strong> 12-byte random nonce, generated per message</li>
+        <li><strong>Authentication tag:</strong> 128-bit GCM tag — detects any ciphertext tampering</li>
+        <li><strong>AAD:</strong> Sequence number and sender DH public key are authenticated into every message, binding the sequence counter and ratchet state to the ciphertext</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Replay &amp; Injection Protection</h3>
+      <p>
+        Every message carries a monotonically increasing sequence number that is authenticated
+        into the GCM tag via AAD. The receiver maintains a 1024-message sliding window bitmap.
+        Any message with a sequence number outside the window, or a number already seen within
+        it, is rejected before decryption is attempted.
+      </p>
+      <ul>
+        <li>Replay attacks are detected and dropped</li>
+        <li>Message injection or reordering is detected via authentication failure</li>
+        <li>Out-of-order delivery within the window is handled by caching skipped message keys</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Peer Verification — Safety Number</h3>
+      <p>
+        To defend against MITM attacks during the handshake, both devices can compare a
+        Safety Number — a human-readable fingerprint derived from both identity public keys.
+        If the numbers match when read aloud or compared in person, the session is authentic.
+      </p>
+      <p>
+        The Safety Number is computed as SHA-256 over the lexicographically ordered concatenation
+        of both identity public keys, formatted as 12 groups of 5 digits — the same approach
+        used by Signal.
+      </p>
+    </section>
+
+    <section>
+      <h3>Secure Teardown — Seal Ceremony</h3>
+      <p>
+        When a session ends, all cryptographic session material is actively destroyed:
+      </p>
+      <ul>
+        <li>Root key, send chain key, receive chain key — zeroed and overwritten</li>
+        <li>All cached skipped message keys — zeroed individually</li>
+        <li>Ephemeral DH keypairs — released (JVM GC, with zero-fill best-effort)</li>
+        <li>Message history — cleared from memory</li>
+        <li>Ratchet counters and replay bitmap — reset</li>
+      </ul>
+      <p>
+        The long-term identity key in Android Keystore is never destroyed — it persists as your
+        stable identity across sessions, but is never used for encryption.
+      </p>
+    </section>
+
+    <footer>© <span id="year"></span> blue_ghost — Offline. Encrypted. Serverless. <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-x">𝕏 blue_ghost_dev</a> <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-yt">▶ blue_ghost_dev</a></footer>
+  </main>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  <script src="effects.js"></script>
+</body>
+</html>

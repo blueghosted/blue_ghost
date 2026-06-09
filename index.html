@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>blue_ghost — Bluetooth‑Only Encrypted Messenger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="blue_ghost: Bluetooth-only encrypted messenger. No servers. No internet. No cloud. End-to-end encrypted, offline-first secure communication." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Shell overrides — bare full-screen container */
+    body {
+      padding: 0 !important;
+      display: block !important;
+      animation: none !important;
+      overflow: hidden;
+    }
+    body::before { display: none; } /* scan lines live in inner pages */
+
+    #shell-iframe {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-overlay"></div>
+
+  <button id="audio-toggle" aria-label="Toggle music" title="Toggle music">&#x1F507;</button>
+
+  <iframe id="shell-iframe" src="home.html" title="blue_ghost content"></iframe>
+
+  <script src="effects.js"></script>
+  <script>
+    (function () {
+      const btn = document.getElementById('audio-toggle');
+      const SRC = 'audio/blue_ghost.mp3';
+      const TARGET_VOL   = 0.5;
+      const FADE_SECS    = 0.8;
+      const XFADE_LEAD   = 1.8;
+
+      let ctx        = null;
+      let masterGain = null;
+      let buf        = null;
+      let sourceA    = null;
+      let gainA      = null;
+      let sourceB    = null;
+      let gainB      = null;
+      let playing    = false;
+      let trackDur   = 0;
+      let startTime  = 0;
+      let watchTimer = null;
+
+      function initAudio(onReady) {
+        if (buf) { onReady(); return; }
+        ctx        = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = ctx.createGain();
+        masterGain.gain.value = TARGET_VOL;
+        masterGain.connect(ctx.destination);
+        fetch(SRC)
+          .then(function (r) { return r.arrayBuffer(); })
+          .then(function (ab) { return ctx.decodeAudioData(ab); })
+          .then(function (decoded) {
+            buf      = decoded;
+            trackDur = decoded.duration;
+            onReady();
+          })
+          .catch(function (e) { console.error('blue_ghost audio load failed', e); });
+      }
+
+      function makeSource() {
+        var g = ctx.createGain();
+        g.gain.value = 0;
+        g.connect(masterGain);
+        var s = ctx.createBufferSource();
+        s.buffer = buf;
+        s.connect(g);
+        return { source: s, gain: g };
+      }
+
+      function rampGain(gainNode, from, to) {
+        var now = ctx.currentTime;
+        gainNode.gain.cancelScheduledValues(now);
+        gainNode.gain.setValueAtTime(from, now);
+        gainNode.gain.linearRampToValueAtTime(to, now + FADE_SECS);
+      }
+
+      function startPlayback() {
+        var n   = makeSource();
+        sourceA = n.source;
+        gainA   = n.gain;
+        sourceA.start(0);
+        startTime = ctx.currentTime;
+        rampGain(gainA, 0, 1);
+        scheduleWatch();
+      }
+
+      function scheduleWatch() {
+        clearInterval(watchTimer);
+        watchTimer = setInterval(function () {
+          if (!playing || !ctx) return;
+          var elapsed   = ctx.currentTime - startTime;
+          var remaining = trackDur - elapsed;
+          if (remaining <= XFADE_LEAD) {
+            clearInterval(watchTimer);
+            doCrossfade();
+          }
+        }, 100);
+      }
+
+      function doCrossfade() {
+        var n   = makeSource();
+        sourceB = n.source;
+        gainB   = n.gain;
+        sourceB.start(0);
+        startTime = ctx.currentTime;
+
+        var now = ctx.currentTime;
+        gainA.gain.cancelScheduledValues(now);
+        gainA.gain.setValueAtTime(gainA.gain.value, now);
+        gainA.gain.linearRampToValueAtTime(0, now + FADE_SECS);
+        gainB.gain.cancelScheduledValues(now);
+        gainB.gain.setValueAtTime(0, now);
+        gainB.gain.linearRampToValueAtTime(1, now + FADE_SECS);
+
+        var oldSource = sourceA;
+        var oldGain   = gainA;
+        setTimeout(function () {
+          try { oldSource.stop(); } catch(e) {}
+          oldGain.disconnect();
+          sourceA = sourceB;
+          gainA   = gainB;
+          sourceB = null;
+          gainB   = null;
+          scheduleWatch();
+        }, FADE_SECS * 1000 + 100);
+      }
+
+      function stopPlayback() {
+        clearInterval(watchTimer);
+        if (!ctx) return;
+        var now = ctx.currentTime;
+        masterGain.gain.cancelScheduledValues(now);
+        masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+        masterGain.gain.linearRampToValueAtTime(0, now + FADE_SECS);
+        setTimeout(function () {
+          try { if (sourceA) sourceA.stop(); } catch(e) {}
+          try { if (sourceB) sourceB.stop(); } catch(e) {}
+          sourceA = sourceB = null;
+        }, FADE_SECS * 1000 + 100);
+      }
+
+      btn.addEventListener('click', function () {
+        if (!playing) {
+          playing = true;
+          btn.innerHTML = '&#x1F50A;';
+          btn.classList.add('unmuted');
+          btn.setAttribute('aria-label', 'Mute music');
+          initAudio(function () {
+            ctx.resume().then(startPlayback);
+          });
+        } else {
+          playing = false;
+          btn.innerHTML = '&#x1F507;';
+          btn.classList.remove('unmuted');
+          btn.setAttribute('aria-label', 'Unmute music');
+          stopPlayback();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

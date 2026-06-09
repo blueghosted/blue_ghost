@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>blue_ghost // threat model</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="grid-overlay"></div>
+  <main class="frame">
+    <header>
+      <div class="logo-wrap"><img src="logo.png" alt="blue_ghost logo" /></div>
+      <div class="header-text">
+        <h1>blue_ghost</h1>
+        <h2>threat model</h2>
+      </div>
+    </header>
+    <nav class="navbar">
+      <a href="home.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="protocol.html">Protocol</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="faq.html">FAQ</a>
+      <a href="threat_model.html" class="active">Threat Model</a>
+      <a href="design.html">Design</a>
+      <a href="download.html">Download</a>
+      <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-x">𝕏</a>
+      <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-yt">▶</a>
+    </nav>
+
+    <section>
+      <h3>Purpose</h3>
+      <p>
+        The blue_ghost threat model defines what the system protects against, what it does not
+        protect against, and the assumptions required for secure operation.
+        The goal: <strong>minimize systemic exposure by eliminating entire classes of attack.</strong>
+      </p>
+    </section>
+
+    <section>
+      <h3>Assumptions</h3>
+      <ul>
+        <li>Both devices are running authentic, untampered builds of blue_ghost</li>
+        <li>Android's TEE (Trusted Execution Environment) is uncompromised</li>
+        <li>Users verify each other's Safety Numbers out-of-band to confirm session authenticity</li>
+        <li>Attackers cannot physically access the device during an active session</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Adversary Classes</h3>
+      <p>blue_ghost is designed to defend against:</p>
+      <ul>
+        <li><strong>Passive RF interceptors</strong> — BLE sniffers, SDR rigs capturing packets in the air</li>
+        <li><strong>Active network adversaries</strong> — MITM attempts during handshake, replay and injection attacks</li>
+        <li><strong>Metadata collectors</strong> — centralized servers, cloud relays, ISP-level surveillance</li>
+        <li><strong>Malicious access points</strong> — Wi‑Fi exploitation vectors (eliminated entirely)</li>
+        <li><strong>Compromised infrastructure</strong> — routers, telecoms, cloud providers</li>
+        <li><strong>Bulk surveillance systems</strong> — dragnet RF collection</li>
+      </ul>
+      <p>The system assumes adversaries may have:</p>
+      <ul>
+        <li>Full RF capture capability with long-term storage</li>
+        <li>BLE packet injection and replay tooling</li>
+        <li>Access to OS-level device metadata</li>
+        <li>Correlation capabilities across time and location</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Threats Mitigated</h3>
+      <ul>
+        <li class="threat-li"><span class="threat-tag mitigated">✓ mitigated</span><span class="threat-li-text"><strong>Message interception</strong> — AES-256-GCM + Double Ratchet; captured packets are opaque ciphertext</span></li>
+        <li class="threat-li"><span class="threat-tag mitigated">✓ mitigated</span><span class="threat-li-text"><strong>Replay attacks</strong> — authenticated sequence numbers + 1024-message sliding window bitmap</span></li>
+        <li class="threat-li"><span class="threat-tag mitigated">✓ mitigated</span><span class="threat-li-text"><strong>Message injection or reordering</strong> — GCM authentication tag failure on tampered payloads</span></li>
+        <li class="threat-li"><span class="threat-tag mitigated">✓ mitigated</span><span class="threat-li-text"><strong>MITM during handshake</strong> — Safety Number verification (out-of-band comparison)</span></li>
+        <li class="threat-li"><span class="threat-tag mitigated">✓ mitigated</span><span class="threat-li-text"><strong>Metadata leakage</strong> — no servers, no internet, no logs, no persistent message storage</span></li>
+        <li class="threat-li"><span class="threat-tag mitigated">✓ mitigated</span><span class="threat-li-text"><strong>Identity spoofing</strong> — hardware-backed P-256 keys in Android Keystore TEE</span></li>
+        <li class="threat-li"><span class="threat-tag mitigated">✓ mitigated</span><span class="threat-li-text"><strong>Compromised server infrastructure</strong> — no servers exist in the architecture</span></li>
+        <li class="threat-li"><span class="threat-tag mitigated">✓ mitigated</span><span class="threat-li-text"><strong>Past message exposure after key compromise</strong> — Double Ratchet forward secrecy; message keys deleted after use</span></li>
+        <li class="threat-li"><span class="threat-tag mitigated">✓ mitigated</span><span class="threat-li-text"><strong>Future message exposure after key compromise</strong> — DH ratchet provides break-in recovery</span></li>
+        <li class="threat-li"><span class="threat-tag mitigated">✓ mitigated</span><span class="threat-li-text"><strong>Input capture via keyboard</strong> — password-mode input suppresses autocorrect, autofill, and IME clipboard access</span></li>
+        <li class="threat-li"><span class="threat-tag mitigated">✓ mitigated</span><span class="threat-li-text"><strong>Screen capture</strong> — <code>FLAG_SECURE</code> blocks OS-level screenshots and screen recording</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Threats Reduced</h3>
+      <p>These cannot be fully eliminated, but blue_ghost significantly reduces their impact:</p>
+      <ul>
+        <li class="threat-li"><span class="threat-tag reduced">~ reduced</span><span class="threat-li-text"><strong>RF triangulation</strong> — BLE low-power mode minimises detection radius</span></li>
+        <li class="threat-li"><span class="threat-tag reduced">~ reduced</span><span class="threat-li-text"><strong>Device fingerprinting via BLE advertisement</strong> — minimal advertisement payload (service UUID + 5 bytes of data)</span></li>
+        <li class="threat-li"><span class="threat-tag reduced">~ reduced</span><span class="threat-li-text"><strong>Traffic analysis</strong> — uniform encrypted payloads with no length correlation to content</span></li>
+        <li class="threat-li"><span class="threat-tag reduced">~ reduced</span><span class="threat-li-text"><strong>Side-channel leakage</strong> — screenshot blocking, notification redaction, no keyboard data retention</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Threats Not Mitigated</h3>
+      <p>No secure system can defend against everything. blue_ghost does <strong>not</strong> protect against:</p>
+      <ul>
+        <li class="threat-li"><span class="threat-tag unmitigated">✗ open</span><span class="threat-li-text"><strong>Compromised devices</strong> — rootkits, spyware, or keyloggers running on either device</span></li>
+        <li class="threat-li"><span class="threat-tag unmitigated">✗ open</span><span class="threat-li-text"><strong>Physical access attacks</strong> — device seizure during an active unlocked session</span></li>
+        <li class="threat-li"><span class="threat-tag unmitigated">✗ open</span><span class="threat-li-text"><strong>Shoulder surfing</strong> — visual eavesdropping of the screen</span></li>
+        <li class="threat-li"><span class="threat-tag unmitigated">✗ open</span><span class="threat-li-text"><strong>Coercion attacks</strong> — forced disclosure or device hand-over under duress</span></li>
+        <li class="threat-li"><span class="threat-tag unmitigated">✗ open</span><span class="threat-li-text"><strong>Broken Android TEE</strong> — malicious firmware or hardware-level key extraction</span></li>
+        <li class="threat-li"><span class="threat-tag unmitigated">✗ open</span><span class="threat-li-text"><strong>Unverified sessions</strong> — without Safety Number confirmation, MITM during handshake is theoretically possible</span></li>
+      </ul>
+    </section>
+
+
+    <footer>© <span id="year"></span> blue_ghost — Offline. Encrypted. Serverless. <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-x">𝕏 blue_ghost_dev</a> <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-yt">▶ blue_ghost_dev</a></footer>
+  </main>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  <script src="effects.js"></script>
+</body>
+</html>

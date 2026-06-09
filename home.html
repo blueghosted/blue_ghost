@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>blue_ghost — Bluetooth‑Only Encrypted Messenger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="blue_ghost: Bluetooth-only encrypted messenger. No servers. No internet. No cloud. End-to-end encrypted, offline-first secure communication." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="grid-overlay"></div>
+
+  <main class="frame">
+
+    <header>
+      <div class="logo-wrap">
+        <img src="logo.png" alt="blue_ghost logo" />
+      </div>
+      <div class="header-text">
+        <h1>blue_ghost</h1>
+        <h2>Bluetooth‑Only Encrypted Messenger</h2>
+      </div>
+    </header>
+
+    <nav class="navbar" id="navbar">
+      <a href="home.html" class="active">Home</a>
+      <a href="features.html">Features</a>
+      <a href="protocol.html">Protocol</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="faq.html">FAQ</a>
+      <a href="threat_model.html">Threat Model</a>
+      <a href="design.html">Design</a>
+      <a href="download.html">Download</a>
+      <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-x">𝕏</a>
+      <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="nav-yt">▶</a>
+    </nav>
+
+    <section>
+      <p class="hero-tagline">// offline · encrypted · serverless</p>
+      <p>
+        <strong>blue_ghost</strong> is a free, ad-free Bluetooth-only encrypted messaging app built for hostile, offline, and
+        infrastructure‑denied environments. It uses no servers, no internet, and no cloud.
+        All communication is direct, device‑to‑device over Bluetooth Low Energy — and leaves no trace.
+      </p>
+
+      <div class="omissions-block">
+        <h4>What blue_ghost doesn't do — and why</h4>
+        <div class="omission-item">
+          <strong>No Wi&#x2011;Fi or Internet</strong> — Any network stack beyond Bluetooth dramatically increases exposure to remote attacks, metadata leaks, and traffic correlation. Staying offline keeps your device unreachable and your conversations unobservable.
+        </div>
+        <div class="omission-item">
+          <strong>No Autocorrect or Predictive Text</strong> — Modern keyboards send text to external services, maintain local corpora, and log input patterns. Disabling autocorrect prevents keystroke harvesting, model&#x2011;training leakage, and injection&#x2011;based exploits.
+        </div>
+        <div class="omission-item">
+          <strong>No File or Image Transfer</strong> — Files are one of the most common malware vectors. Even images can carry payloads (EXIF data, steganography, malformed decoders). Removing file transfer eliminates an entire class of exploits.
+        </div>
+        <div class="omission-item">
+          <strong>No Voice Messages</strong> — Audio requires microphone access, background processing, and codec parsing — all of which expand the attack surface and introduce fingerprinting risks. blue_ghost avoids this by design.
+        </div>
+        <p class="omissions-footer">Every omission is intentional. Fewer features = fewer vulnerabilities. blue_ghost keeps communication simple, local, encrypted, and private — exactly as a secure offline messenger should.</p>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card">
+          <span class="stat-num">256</span>
+          <span class="stat-label">AES-GCM bit key</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num">0</span>
+          <span class="stat-label">Servers contacted</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num">0</span>
+          <span class="stat-label">Internet permissions</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num">P-256</span>
+          <span class="stat-label">Hardware-backed keys</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="gallery-section">
+      <h3>App Gallery</h3>
+
+      <div class="feature-graphic-wrap">
+        <img src="img/feature_graphic.png" alt="blue_ghost feature graphic" class="feature-graphic" />
+      </div>
+
+      <div class="screenshot-strip-outer">
+        <button class="strip-arrow strip-arrow-left" aria-label="Scroll left">&#8249;</button>
+        <div class="screenshot-strip" id="screenshotStrip">
+          <a class="screenshot-item screenshot-item--video" href="https://www.youtube.com/shorts/8lBuEEt7guQ" target="_blank" rel="noopener noreferrer">
+            <div class="video-thumb-wrap">
+              <div class="video-play-btn">&#9654;</div>
+            </div>
+          </a>
+          <div class="screenshot-item"><img src="img/1.jpg" alt="Screenshot 1" /></div>
+          <div class="screenshot-item"><img src="img/2.jpg" alt="Screenshot 2" /></div>
+          <div class="screenshot-item"><img src="img/3.png" alt="Screenshot 3" /></div>
+          <div class="screenshot-item"><img src="img/4.png" alt="Screenshot 4" /></div>
+          <div class="screenshot-item"><img src="img/5.jpg" alt="Screenshot 5" /></div>
+          <div class="screenshot-item"><img src="img/6.jpg" alt="Screenshot 6" /></div>
+          <div class="screenshot-item"><img src="img/7.jpg" alt="Screenshot 7" /></div>
+          <div class="screenshot-item"><img src="img/8.png" alt="Screenshot 8" /></div>
+        </div>
+        <button class="strip-arrow strip-arrow-right" aria-label="Scroll right">&#8250;</button>
+      </div>
+
+      <p style="margin-top:14px; font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted); letter-spacing:0.08em;">// tap &amp; hold any message to temporarily reveal it</p>
+
+      <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Screenshot preview">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+        <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous">&#8249;</button>
+        <img class="lightbox-img" id="lightboxImg" src="" alt="Screenshot preview" />
+        <div class="lightbox-video" id="lightboxVideo" style="display:none">
+          <iframe id="lightboxIframe" src="" allow="autoplay; encrypted-media" allowfullscreen frameborder="0"></iframe>
+        </div>
+        <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next">&#8250;</button>
+        <div class="lightbox-counter" id="lightboxCounter"></div>
+        <div class="lightbox-esc-hint">Press ESC to minimize</div>
+      </div>
+    </section>
+
+    <section>
+      <h3>Core Principles</h3>
+      <div class="feature-grid">
+        <div class="feature-item">
+          <span class="feature-icon">📡</span>
+          <div class="feature-text">
+            <strong>Bluetooth Only</strong>
+            <span>No Wi‑Fi, no cellular. Short-range, infrastructure-free communication that cannot reach the internet.</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🔒</span>
+          <div class="feature-text">
+            <strong>End-to-End Encrypted</strong>
+            <span>Ephemeral ECDH handshake + Double Ratchet + AES‑256‑GCM. Fresh key on every message.</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🚫</span>
+          <div class="feature-text">
+            <strong>Minimal Persistence</strong>
+            <span>Session keys, ratchet state, and message history never survive a session end.</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🔑</span>
+          <div class="feature-text">
+            <strong>Hardware Keys</strong>
+            <span>Identity keys generated and locked inside Android's Trusted Execution Environment. Never extracted.</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">👻</span>
+          <div class="feature-text">
+            <strong>No Accounts</strong>
+            <span>No phone numbers, no usernames, no email addresses. No registration of any kind.</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🧹</span>
+          <div class="feature-text">
+            <strong>Seal Ceremony</strong>
+            <span>Secure teardown destroys all session keys, chain state, and message history on exit.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3>Who It's For</h3>
+      <p>
+        Anyone who needs secure, offline, device‑to‑device communication — from journalists, activists,
+        and security researchers, to field teams operating in infrastructure-denied environments, to people
+        who simply want conversations that don't live forever.
+      </p>
+      <p>
+        See the full audience breakdown in the <a href="faq.html" style="color:var(--accent)">FAQ</a>.
+      </p>
+    </section>
+
+    <footer>
+      © <span id="year"></span> blue_ghost — Offline. Encrypted. Serverless.
+      <a href="https://x.com/blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-x">𝕏 blue_ghost_dev</a>
+      <a href="https://www.youtube.com/@blue_ghost_dev" target="_blank" rel="noopener noreferrer" class="footer-yt">▶ blue_ghost_dev</a>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+    const links = document.querySelectorAll('.navbar a');
+    const current = location.pathname.split('/').pop() || 'home.html';
+    links.forEach(a => {
+      if (a.getAttribute('href') === current) a.classList.add('active');
+      else a.classList.remove('active');
+    });
+
+    const strip = document.getElementById('screenshotStrip');
+    document.querySelector('.strip-arrow-left').addEventListener('click', () => {
+      strip.scrollBy({ left: -220, behavior: 'smooth' });
+    });
+    document.querySelector('.strip-arrow-right').addEventListener('click', () => {
+      strip.scrollBy({ left: 220, behavior: 'smooth' });
+    });
+
+    const lightbox    = document.getElementById('lightbox');
+    const lbImg       = document.getElementById('lightboxImg');
+    const lbVideo     = document.getElementById('lightboxVideo');
+    const lbIframe    = document.getElementById('lightboxIframe');
+    const lbCounter   = document.getElementById('lightboxCounter');
+    const allItems    = Array.from(document.querySelectorAll('.screenshot-item:not(.screenshot-item--video)'));
+    let current_idx   = 0;
+
+    function openLightbox(idx) {
+      current_idx = idx;
+      const item = allItems[idx];
+      lbImg.src = item.querySelector('img').src;
+      lbImg.alt = item.querySelector('img').alt;
+      lbImg.style.display = 'block';
+      lbCounter.textContent = (idx + 1) + ' / ' + allItems.length;
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+      lbIframe.src = '';
+      document.body.style.overflow = '';
+    }
+
+    allItems.forEach((item, i) => {
+      item.addEventListener('click', () => openLightbox(i));
+    });
+
+    document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+    document.getElementById('lightboxPrev').addEventListener('click', () => {
+      openLightbox((current_idx - 1 + allItems.length) % allItems.length);
+    });
+    document.getElementById('lightboxNext').addEventListener('click', () => {
+      openLightbox((current_idx + 1) % allItems.length);
+    });
+    lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+    document.addEventListener('keydown', e => {
+      if (!lightbox.classList.contains('active')) return;
+      if (e.key === 'Escape')      closeLightbox();
+      if (e.key === 'ArrowLeft')   openLightbox((current_idx - 1 + allItems.length) % allItems.length);
+      if (e.key === 'ArrowRight')  openLightbox((current_idx + 1) % allItems.length);
+    });
+  </script>
+  <script src="effects.js"></script>
+</body>
+</html>
